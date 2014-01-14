@@ -20,10 +20,10 @@ Channel.prototype.hasData = function () {
  */
 function go(fn, channel, done) {
     function next () {
-        var ret = ret;
-        process.nextTick(function () {
+        var ret = false;
+        setImmediate(function () {
             if(channel.hasData()) {
-                var result = fn(channel);
+                var ret = fn(channel);
                 if (done) {
                     if (ret) {
                         done(true);
@@ -45,25 +45,29 @@ function go(fn, channel, done) {
  */
 function gfor(fn, ch) {
     var done = false,
-        doneStatus = false;
-    
+        doneStatus = false,
+        immediateId;
+
     go(fn, ch, function (result) {
         done = true;
         doneStatus = result;
     });
 
     function next() {
-        process.nextTick(function () {
+        immediateId = setImmediate(function () {
             if (done && !doneStatus) {
-                return go(fn, ch, function (result) {
+                go(fn, ch, function (result) {
                     done = true;
                     doneStatus = result;
                 });
+                return next();
             }
-            
+
             if (!done) {
                 return next();
             }
+
+            clearImmediate(immediateId);
 
         });
     }
