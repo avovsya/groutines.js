@@ -1,0 +1,16 @@
+{
+  "name": "goroutines",
+  "version": "0.0.0",
+  "description": "Goroutines for Node.js using node-fibers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/avovsya/groutines.js.git"
+  },
+  "author": "Artem Vovsya <avovsya@gmail.com>",
+  "license": "BSD",
+  "gitHead": "2fef55627166edd67b3684e644955befa02cf9fc",
+}
