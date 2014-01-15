@@ -1,46 +1,45 @@
-var go = require('./index');
+var go = require('./goroutines');
 
-    acakes = 0,
-    scakes = 0,
-    cakesPacked = 0;
+function main () {
+    var channel = new go.Channel(),
+        testCh = new go.Channel();
 
-function main() {
-    var ch1 = new go.Channel(),
-        ch2 = new go.Channel();
+    // Cake packer
+    go(function (ch, testCh) {
+        var cakesPacked = 0,
+            cake;
+        while (true) {
+            cake = ch.receive();
+            if (++cakesPacked === 3) {
+                testCh.send(cake);
+            } else {
+                console.log(" + + + Packing " + cake);
+            }
+        }
+    }, channel, testCh);
 
-    go.for(receiveCakeAndPack, ch1, ch2);
+    // Cake tester
+    go(function (ch, testCh) {
+        while (true) {
+            var cake = testCh.receive();
+            
+            setTimeout(function () {
+                console.log(cake + " is good! Pack it!");
+                ch.send(cake);
+            }, 2000);
+        }
+    }, channel, testCh);
 
-    for (var i = 0; i < 3; i++) {
-        makeStrawberryCakeAndSend(ch1);
+    // Cake maker
+    for(var i = 0; i < 5; i++) {
+        (function (i) {
+            setTimeout(function () {
+                console.log("> Making apple cake # " + i);
+                channel.send("Apple cake " + i);
+            }, i * 1000);
+        })(i);
     }
-    makeAppleCakeAndSend(ch2);
-    setTimeout(function () { makeStrawberryCakeAndSend(ch1) }, 1000);
-    setTimeout(function () { makeAppleCakeAndSend(ch2) }, 1000);
-}
 
-function makeStrawberryCakeAndSend(ch) {
-    scakes++;
-    var cakeName = "Strawberry Cake " + scakes;
-    console.log("Making a cake and sending... " + cakeName);
-    ch.send(cakeName);
-}
-
-function makeAppleCakeAndSend(ch) {
-    acakes++;
-    var cakeName = "Apple Cake " + acakes;
-    console.log("Making a cake and sending... " + cakeName);
-    ch.send(cakeName);
-}
-
-function receiveCakeAndPack(ch1, ch2) {
-    var cake;
-
-    ch1.resolved && (cake = ch1.receive());
-    ch2.resolved && (cake = ch2.receive());
-
-    cakesPacked++;
-    console.log("Packing received cake: " + cake);
-    if (cakesPacked >= 2) return true;
 }
 
 main();

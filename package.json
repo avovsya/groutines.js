@@ -13,4 +13,7 @@
   "author": "Artem Vovsya <avovsya@gmail.com>",
   "license": "BSD",
   "gitHead": "2fef55627166edd67b3684e644955befa02cf9fc",
+  "dependencies": {
+    "fibers": "~1.0.1"
+  }
 }
